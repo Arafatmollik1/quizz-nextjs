@@ -10,17 +10,29 @@ const io = new Server(3001, {
 
 const db = new sqlite3.Database('quiz.db');
 
-function broadcastQuestions() {
+/*function broadcastQuestions() {
     db.all("SELECT * FROM questions where active=1", [], (err, rows) => {
         if (!err) {
-            io.emit("dataUpdate", rows);
+            socket.broadcast.emit("dataUpdate", rows);
         }
     });
-}
+}*/
 
 io.on("connection", (socket) => {
-    // Initial data send
-    broadcastQuestions();
+    db.all("SELECT * FROM questions where active=1", [], (err, rows) => {
+        if (!err) {
+            socket.broadcast.emit("dataUpdate", rows);
+        }
+    });
+
+    // Add listener for questionActivated event
+    socket.on('questionActivated', (questionId) => {
+        db.all("SELECT * FROM questions where active=1", [], (err, rows) => {
+            if (!err) {
+                socket.broadcast.emit("dataUpdate", rows);
+            }
+        });
+    });
 
     console.log("Client connected");
     // Clean up interval when client disconnects

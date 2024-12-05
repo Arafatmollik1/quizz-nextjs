@@ -42,6 +42,7 @@ export default function Quiz() {
 
             if (response.ok) {
                 await fetchQuestions();
+                socket.emit('questionActivated', questionId);
                 setConfirmationMessage('Question activated successfully!');
                 setTimeout(() => setConfirmationMessage(''), 3000);
             } else {
