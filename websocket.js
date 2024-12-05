@@ -11,7 +11,7 @@ const io = new Server(3001, {
 const db = new sqlite3.Database('quiz.db');
 
 function broadcastQuestions() {
-    db.all("SELECT * FROM questions", [], (err, rows) => {
+    db.all("SELECT * FROM questions where active=1", [], (err, rows) => {
         if (!err) {
             io.emit("dataUpdate", rows);
         }
@@ -22,11 +22,9 @@ io.on("connection", (socket) => {
     // Initial data send
     broadcastQuestions();
 
-    // Polling every 5 seconds
-    const pollInterval = setInterval(broadcastQuestions, 5000);
-
+    console.log("Client connected");
     // Clean up interval when client disconnects
     socket.on("disconnect", () => {
-        clearInterval(pollInterval);
+        console.log("Client disconnected");
     });
 });
